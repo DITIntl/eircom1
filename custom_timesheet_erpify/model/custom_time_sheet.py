@@ -33,7 +33,7 @@ class Timesheets(models.Model):
 
 class TimeSheetSubmission(models.Model):
     _name = 'timesheet.submission.erpify'
-    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin', 'utm.mixin']
+    _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = 'Timesheets Request'
 
     name = fields.Char(compute='_get_record_name', store=True)
