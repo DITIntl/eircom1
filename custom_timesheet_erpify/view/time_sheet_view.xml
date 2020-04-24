@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='timesheet_ids']/kanban/field[@name='name']" position="after">
                 <field name="tz"/>
-                <field name="type_id_erpify" domain="[('show_in_timsheet', '=', True)]" options="{'no_create_edit': True}"/>
+                <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
                 <field name="start" widget="timesheet_uom"/>
                 <field name="end" widget="timesheet_uom"/>
             </xpath>
@@ -21,7 +21,7 @@
          <field name="arch" type="xml">
              <xpath expr="//field[@name='project_id']" position="after">
                  <field name="name" required="1"/>
-                 <field name="type_id_erpify" domain="[('show_in_timsheet', '=', True)]" options="{'no_create_edit': True}"/>
+                 <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
              </xpath>
              <xpath expr="//field[@name='project_id']" position="attributes">
                  <attribute name="invisible">1</attribute>
