@@ -30,8 +30,10 @@
                                 <field name="user_id" invisible="1" groups="hr_timesheet.group_hr_timesheet_approver"/>
                                 <field name="employee_id" required="1" readonly="1"/>
                                 <field name="date"/>
-                                <field name="start" type="measure" widget="timesheet_uom"/>
-                                <field name="end" type="measure" widget="timesheet_uom"/>
+                                <label for="start" string="From"/>
+                                <div>
+                                    <field name="start" class="oe_inline" type="measure" widget="timesheet_uom"/>  <b> to </b>  <field name="end" class="oe_inline" type="measure" widget="timesheet_uom"/>
+                                </div>
                                 <label for="unit_amount" string="Time Spent"/>
                                 <div class="o_row">
                                     <field name="unit_amount" widget="timesheet_uom"/>
@@ -40,8 +42,7 @@
                                 <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
                                 <field name="name" required="1"/>
                             </group>
-                            <group>
-                            </group>
+                            
                         </group>
                     </sheet>
                 </form>
