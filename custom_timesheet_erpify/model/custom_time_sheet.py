@@ -43,11 +43,11 @@ class Timesheets(models.Model):
 
     @api.constrains('start', 'end')
     def check_validaty_of_start_end(self):
-        if start > 24:
+        if self.start > 24:
             raise ValidationError('The starting time entered is not correct')
-        if end > 24:
+        if self.end > 24:
             raise ValidationError('The ending time entered is not correct')
-        if start > end:
+        if self.start > self.end:
             raise ValidationError('The starting time can not be earlier than ending time.')
 
 
