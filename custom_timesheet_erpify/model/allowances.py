@@ -13,5 +13,5 @@ class Allowances(models.Model):
     end = fields.Float('End')
     active = fields.Boolean('Active', default=True, tracking=True)
     show_in_timesheet = fields.Boolean('Show while entering timesheets?', default=True)
-
+    select_by_default = fields.Boolean('Select by Default?')
 

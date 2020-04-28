@@ -15,6 +15,7 @@
                             <group>
                                 <field name="name" required="1"/>
                                 <field name="show_in_timesheet"/>
+                                <field name="select_by_default"/>
                             </group>
                             <group>
                                 <field name="start" required="1"/>

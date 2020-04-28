@@ -7,13 +7,21 @@ from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 class Timesheets(models.Model):
     _inherit = 'account.analytic.line'
 
+    @api.model
+    def _get_ordinary_type(self):
+        default = self.env['timesheet.allowances.category.erpify'].search([('select_by_default', '=', True)], limit=1).id
+        if default:
+            return default
+        else:
+            return False
+
     tz = fields.Selection(related='employee_id.tz', string='Time Zone', readonly=True, store=False)
     start = fields.Float(string="Start")
     end = fields.Float(string="End")
     name = fields.Char(string='Appropriation Code')
     employee_shift_erpify = fields.Many2one('resource.calender')
     timesheet_submission_erpify_id = fields.Many2one('timesheet.submission.erpify')
-    type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Type')
+    type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Type', default=_get_ordinary_type)
 
     @api.model
     def create(self, vals):
