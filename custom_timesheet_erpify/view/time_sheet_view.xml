@@ -37,7 +37,7 @@
                                     <field name="unit_amount" widget="timesheet_uom" required="1" readonly="1"/>
                                     <field name="encoding_uom_id" options="{'no_open': true}"/>
                                 </div>
-                                <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
+                                <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True, 'no_open': True}"/>
                                 <field name="name" required="1"/>
                             </group>
 
