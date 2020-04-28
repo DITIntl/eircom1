@@ -19,27 +19,33 @@
          <field name="model">account.analytic.line</field>
          <field name="inherit_id" ref="timesheet_grid.timesheet_view_form" />
          <field name="arch" type="xml">
-             <xpath expr="//field[@name='project_id']" position="after">
-                 <field name="name" required="1"/>
-                 <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
+             <xpath expr="//form" position="replace">
+                 <form string="Add a Task">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="company_id" invisible="1"/>
+                                <field name="project_id" invisible="1" class="o_timesheet_tour_project_name" context="{'form_view_ref': 'project.project_project_view_form_simplified',}"/>
+                                <field name="task_id" invisible="1" context="{'default_project_id': project_id}" class="o_timesheet_tour_task_name"/>
+                                <field name="user_id" invisible="1" groups="hr_timesheet.group_hr_timesheet_approver"/>
+                                <field name="employee_id" required="1" readonly="1"/>
+                                <field name="date"/>
+                                <field name="start" type="measure" widget="timesheet_uom"/>
+                                <field name="end" type="measure" widget="timesheet_uom"/>
+                                <label for="unit_amount" string="Time Spent"/>
+                                <div class="o_row">
+                                    <field name="unit_amount" widget="timesheet_uom"/>
+                                    <field name="encoding_uom_id" options="{'no_open': true}"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="type_id_erpify" domain="[('show_in_timesheet', '=', True)]" options="{'no_create_edit': True}"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
              </xpath>
-             <xpath expr="//field[@name='project_id']" position="attributes">
-                 <attribute name="invisible">1</attribute>
-                 <attribute name="required">0</attribute>
-             </xpath>
-             <xpath expr="//field[@name='employee_id']" position="attributes">
-                 <attribute name="required">1</attribute>
-             </xpath>
-             <xpath expr="//field[@name='task_id']" position="attributes">
-                 <attribute name="invisible">1</attribute>
-             </xpath>
-             <xpath expr="//field[@name='employee_id']" position="after">
-                 <field name="tz" type="row"/>
-             </xpath>
-             <xpath expr="//field[@name='date']" position="after">
-              <field name="start"  type="measure" widget="timesheet_uom"/>
-              <field name="end"  type="measure" widget="timesheet_uom"/>
-            </xpath>
          </field>
     </record>
 
@@ -53,7 +59,7 @@
                 <attribute name="required">0</attribute>
             </xpath>
             <xpath expr="//field[@name='task_id']" position="replace">
-                <field name="tz"/>
+                <field name="tz" invisible="1"/>
                 <field name="start" widget="timesheet_uom"/>
                 <field name="end" widget="timesheet_uom"/>
             </xpath>
