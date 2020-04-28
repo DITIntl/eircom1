@@ -25,9 +25,9 @@ class Timesheets(models.Model):
 
     @api.model
     def create(self, vals):
-        if not vals.get('project_id', False) and vals.get('employee_id', False):
-            employee = self.env['hr.employee'].search([('id', '=', vals.get('employee_id'))])
-            vals.update({'project_id': employee.project_id_erpify.id})
+        employee = self.env.user.employee_id
+        vals.update({'project_id': employee.project_id_erpify.id,
+                     'account_id': employee.project_id_erpify.analytic_account_id.id})
         result = super(Timesheets, self).create(vals)
         if result.employee_id:
             result.employee_shift_erpify = result.employee_id.resource_calendar_id.id
