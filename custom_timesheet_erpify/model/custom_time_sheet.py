@@ -22,21 +22,33 @@ class Timesheets(models.Model):
     employee_shift_erpify = fields.Many2one('resource.calender')
     timesheet_submission_erpify_id = fields.Many2one('timesheet.submission.erpify')
     type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Type', default=_get_ordinary_type)
+    unit_amount = fields.Float(compute='calculate_duration', store=True)
 
     @api.model
     def create(self, vals):
         employee = self.env['hr.employee'].search([('user_id', '=', self.env.user.id)])
-        vals.update({'project_id': employee.project_id_erpify.id,
-                     'account_id': employee.project_id_erpify.analytic_account_id.id})
+        if not vals.get('project_id', False) or not vals.get('account_id', False):
+            vals.update({'project_id': employee.project_id_erpify.id,
+                         'account_id': employee.project_id_erpify.analytic_account_id.id})
         result = super(Timesheets, self).create(vals)
         if result.employee_id:
             result.employee_shift_erpify = result.employee_id.resource_calendar_id.id
         return result
 
-    @api.onchange('end')
+    @api.depends('end')
     def calculate_duration(self):
-        if self.start and self.end:
-            self.unit_amount = self.end - self.start
+        for r in self:
+            if r.start and r.end:
+                r.unit_amount = r.end - r.start
+
+    @api.constrains('start', 'end')
+    def check_validaty_of_start_end(self):
+        if start > 24:
+            raise ValidationError('The starting time entered is not correct')
+        if end > 24:
+            raise ValidationError('The ending time entered is not correct')
+        if start > end:
+            raise ValidationError('The starting time can not be earlier than ending time.')
 
 
 class TimeSheetSubmission(models.Model):
