@@ -25,7 +25,7 @@ class Timesheets(models.Model):
 
     @api.model
     def create(self, vals):
-        employee = self.env.user.employee_id
+        employee = self.env['hr.employee'].search([('user_id', '=', self.env.user.id)])
         vals.update({'project_id': employee.project_id_erpify.id,
                      'account_id': employee.project_id_erpify.analytic_account_id.id})
         result = super(Timesheets, self).create(vals)
