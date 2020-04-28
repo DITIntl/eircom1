@@ -16,8 +16,8 @@ class Timesheets(models.Model):
             return False
 
     tz = fields.Selection(related='employee_id.tz', string='Time Zone', readonly=True, store=False)
-    start = fields.Float(string="Start")
-    end = fields.Float(string="End")
+    start = fields.Float(string="From")
+    end = fields.Float(string="To")
     name = fields.Char(string='Appropriation Code')
     employee_shift_erpify = fields.Many2one('resource.calender')
     timesheet_submission_erpify_id = fields.Many2one('timesheet.submission.erpify')
