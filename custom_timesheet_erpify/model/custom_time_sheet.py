@@ -4,6 +4,26 @@ from datetime import datetime
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
+class TimeSheetSubmissionAllowances(models.Model):
+    _name = 'timesheet.submission.allowances.erpify'
+    _description = 'Timesheets Allowances Submission'
+
+    name = fields.Many2one('timesheet.allowances.category.erpify')
+    hours = fields.Float()
+    hours_after_TIL = fields.Float('Hours after TIL', help='Hours after applying Time in Lieu', compute='get_amount', store=True)
+    amount = fields.Float(compute='get_amount', store=True)
+    employee_id = fields.Many2one('hr.employee')
+    submission_request_id = fields.Many2one('timesheet.submission.erpify')
+    currency_id = fields.Many2one(related='submission_request_id.currency_id')
+
+    @api.depends('hours', 'employee_id', 'submission_request_id.time_in_lieu')
+    def get_amount(self):
+        for r in self:
+            til = r.hours - (r.hours * r.submission_request_id.time_in_lieu / 100)
+            r.amount = til * r.employee_id.timesheet_cost
+            r.hours_after_TIL = til
+
+
 class Timesheets(models.Model):
     _inherit = 'account.analytic.line'
 
@@ -21,8 +41,37 @@ class Timesheets(models.Model):
     name = fields.Char(string='Appropriation Code')
     employee_shift_erpify = fields.Many2one('resource.calender')
     timesheet_submission_erpify_id = fields.Many2one('timesheet.submission.erpify')
-    type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Type', default=_get_ordinary_type)
-    unit_amount = fields.Float(compute='calculate_duration', store=True)
+    type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Work Type',
+                                     default=_get_ordinary_type)
+    unit_amount = fields.Float(compute='calculate_duration', store=True, string='Actual Hours')
+    calc_hours = fields.Float('Calculated Hours', compute='calculate_calculated_hours', store=True)
+
+    @api.depends('start', 'end', 'type_id_erpify', 'employee_id')
+    def calculate_calculated_hours(self):
+        for record in self:
+            if record.type_id_erpify and record.employee_id:
+                record.calc_hours = record.type_id_erpify.calculate_allowance_hours(record.unit_amount,
+                                                                                    record.employee_id)
+
+    @api.constrains('calc_hours')
+    def check_limit_erpify(self):
+        for record in self:
+            rule = record.type_id_erpify.get_rule(record.employee_id.resource_calendar_id)
+            if rule and rule.limited == 'yes':
+                if rule.number_of_occurences:
+                    week_start = date - datetime.timedelta(days=record.date.weekday())
+                    week_end = date + datetime.timedelta(days=6 - record.date.weekday())
+                    timesheet_entries = self.env['account.analytic.line'].search([('employee_id', '=', record.employee_id.id), ('date', '>=', week_start), ('date', '<=', week_end),
+                                                              ('type_id_erpify', '=', record.type_id_erpify.id)])
+                    if timesheet_entries and len(timesheet_entries) + 1 > rule.number_of_occurences:
+                        raise ValidationError("Your limit to apply for this work type has been reached for this week, please try any other work type.")
+                if rule.limit:
+                    timesheet_entries = self.env['account.analytic.line'].search(
+                        [('employee_id', '=', record.employee_id.id), ('date', '=', record.date),
+                         ('type_id_erpify', '=', record.type_id_erpify.id)])
+                    if sum(timesheet_entries.mapped('calc_hours')) + record.calc_hours > rule.limit:
+                        raise ValidationError(
+                            "Your limit to apply for this work type has been reached for this day, please try any other work type.")
 
     @api.model
     def create(self, vals):
@@ -60,24 +109,37 @@ class TimeSheetSubmission(models.Model):
     start_date = fields.Date(required=True)
     end_date = fields.Date(required=True)
     employee_id = fields.Many2one('hr.employee', required=True)
-    time_in_lieu = fields.Float(default=50.0)
     timesheet_ids = fields.One2many('account.analytic.line', 'timesheet_submission_erpify_id')
     state = fields.Selection([('draft', 'Draft'), ('submit', 'Submitted'), ('approved', 'Approved'),
                               ('cancel', 'Cancelled')], default='draft', string='Status')
     approval_matrix = fields.One2many('timesheet.approval.matrix', 'timesheet_submission_id')
+    company_id = fields.Many2one('res.company', string='Company', index=True, default=lambda self: self.env.company)
+    currency_id = fields.Many2one(related='company_id.currency_id')
     submission_date = fields.Datetime()
+    allowances_ids = fields.One2many('timesheet.submission.allowances.erpify', 'submission_request_id')
+    allowance_total = fields.Float('Allowances', compute='_compute_all_amounts', store=True)
+    normal_total = fields.Float('Basic Pay', compute='_compute_all_amounts', store=True)
+    total_amount = fields.Float(compute='_compute_all_amounts', store=True)
+    time_in_lieu = fields.Integer('Time in Lieu %', default=50)
+
+    @api.depends('timesheet_ids.unit_amount', 'time_in_lieu', 'start_date', 'end_date', 'employee_id')
+    def _compute_all_amounts(self):
+        for rec in self:
+            normal_hours = rec.timesheet_ids.filtered(lambda r: r.type_id_erpify.select_by_default)
+            allowance_amount = rec.allowances_ids.mapped('amount')
+            rec.normal_total = (sum(normal_hours.mapped('unit_amount')) * rec.employee_id.timesheet_cost) if normal_hours else 0
+            rec.allowance_total = (sum(allowance_amount)) if allowance_amount else 0
+            rec.total_amount = rec.normal_total + rec.allowance_total
+
+    @api.constrains('time_in_lieu')
+    def check_time_in_lieu(self):
+        if self.time_in_lieu > 100 or self.time_in_lieu < 0:
+            raise ValidationError('You have entered a wrong value for time in lieu, it should be in between 0 to 100 %')
 
     @api.depends('employee_id', 'start_date', 'end_date')
     def _get_record_name(self):
         for r in self:
             r.name = r.employee_id.name + ': ' + r.start_date.strftime(DATE_FORMAT) + ' to ' + r.end_date.strftime(DATE_FORMAT)
-
-    @api.constrains('time_in_lieu')
-    def check_time_in_lieu(self):
-        if self.time_in_lieu > 50:
-            raise ValidationError(_('Time In Lieu cannot be greater than 50%'))
-        elif self.time_in_lieu < 0:
-            raise ValidationError(_('Time In Lieu cannot be less than 0%'))
 
     @api.constrains('start_date', 'end_date')
     def _onchange_start_date_or_end_date(self):
@@ -87,13 +149,13 @@ class TimeSheetSubmission(models.Model):
     def fetch_timesheets(self):
         if self.start_date and self.end_date and self.employee_id:
             timesheets = self.env['account.analytic.line'].search([('employee_id', '=', self.employee_id.id), ('date', '>=', self.start_date),
-                                                      ('date', '<=', self.end_date), ('timesheet_submission_erpify_id', '=', False)]).ids
+                                                      ('date', '<=', self.end_date), ('timesheet_submission_erpify_id', 'in', [False, self.id])]).ids
             if timesheets:
                 self.timesheet_ids = [(6, 0, timesheets)]
 
     def cancel(self):
         self.state = 'cancel'
-        self.timesheet_ids.unlink()
+        self.timesheet_ids = [(5)]
 
     def approve_reject(self):
         return {
@@ -111,6 +173,22 @@ class TimeSheetSubmission(models.Model):
 
     def submit_request(self):
         self.fetch_timesheets()
+        if self.allowances_ids:
+            self.allowances_ids.unlink()
+        all_categ = self.env['timesheet.allowances.category.erpify'].search([('select_by_default', '=', False)])
+        for categ in all_categ:
+            t = self.timesheet_ids.filtered(lambda r: r.type_id_erpify.id == categ.id)
+            if t:
+                t_sum = sum(t.mapped('calc_hours'))
+            else:
+                t_sum = 0
+            self.env['timesheet.submission.allowances.erpify'].create({
+                'name': categ.id,
+                'hours': t_sum,
+                'submission_request_id': self.id,
+                'employee_id': self.employee_id.id,
+                'hours_after_TIL': t_sum - (t_sum * self.time_in_lieu / 100),
+            })
         self.submission_date = datetime.now()
         self.state = 'submit'
 

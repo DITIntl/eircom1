@@ -6,7 +6,7 @@
     'author': "ERPify Inc.",
     'website': 'http://erpify.biz',
     'category': '',
-    'depends': ['base','project','analytic','hr','hr_timesheet','timesheet_grid','web_grid'],
+    'depends': ['base','project','analytic','hr','hr_timesheet','timesheet_grid','web_grid', 'resource'],
     'data': [
         "view/time_sheet_view.xml",
         "view/timesheet_submission_view.xml",
