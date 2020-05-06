@@ -90,7 +90,7 @@ class Timesheets(models.Model):
             if r.start and r.end:
                 r.unit_amount = r.end - r.start
 
-    @api.constrains('start', 'end')
+    @api.constrains('start', 'end', 'type_id_erpify')
     def check_validaty_of_start_end(self):
         if self.start > 24:
             raise ValidationError('The starting time entered is not correct')
@@ -98,12 +98,20 @@ class Timesheets(models.Model):
             raise ValidationError('The ending time entered is not correct')
         if self.start > self.end:
             raise ValidationError('The starting time can not be earlier than ending time.')
+        self.type_id_erpify.check_restriction(self.date, self.start, self.end, self.employee_id)
 
 
 class TimeSheetSubmission(models.Model):
     _name = 'timesheet.submission.erpify'
     _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = 'Timesheets Request'
+
+    @api.model
+    def default_get(self, field_list):
+        result = super(TimeSheetSubmission, self).default_get(field_list)
+        if 'employee_id' in field_list:
+            result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
+        return result
 
     name = fields.Char(compute='_get_record_name', store=True)
     start_date = fields.Date(required=True)

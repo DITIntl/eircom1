@@ -18,7 +18,7 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="employee_id" required="1" options="{'no_create_edit': True}" attrs="{'readonly': [('state','!=','draft')]}"/>
+                                <field name="employee_id" required="1" options="{'no_create_edit': True}" readonly="1"/>
                                 <field name="company_id" readonly="1"/>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="submission_date" readonly="1"/>
