@@ -105,6 +105,13 @@ class TimeSheetSubmission(models.Model):
     _inherit = ['portal.mixin', 'mail.thread', 'mail.activity.mixin']
     _description = 'Timesheets Request'
 
+    @api.model
+    def default_get(self, field_list):
+        result = super(TimeSheetSubmission, self).default_get(field_list)
+        if 'employee_id' in field_list:
+            result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
+        return result
+
     name = fields.Char(compute='_get_record_name', store=True)
     start_date = fields.Date(required=True)
     end_date = fields.Date(required=True)
