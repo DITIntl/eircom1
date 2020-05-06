@@ -40,6 +40,8 @@ class Allowances(models.Model):
         if not rule:
             return actual_hours
         prev, hours = 0, 0
+        if rule.round_up and actual_hours < round_up:
+            actual_hours = rule.round_up
         for line in rule.rule_details:
             if prev < actual_hours:
                 hours += (line.upto * line.rate) if actual_hours > line.upto else ((actual_hours - prev) * line.rate)
@@ -63,6 +65,7 @@ class AllowanceRules(models.Model):
     limited = fields.Selection([('yes', 'Yes'), ('no', 'No')])
     limit = fields.Float('Daily Limit')
     number_of_occurences = fields.Integer(help='How many times it can appear in a weekly timesheet submission?')
+    round_up = fields.Float('Round Up?')
 
 
 class AllowanceRuleDetails(models.Model):
