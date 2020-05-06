@@ -40,7 +40,7 @@ class Allowances(models.Model):
         if not rule:
             return actual_hours
         prev, hours = 0, 0
-        if rule.round_up and actual_hours < round_up:
+        if rule.round_up and actual_hours < rule.round_up:
             actual_hours = rule.round_up
         for line in rule.rule_details:
             if prev < actual_hours:
