@@ -34,6 +34,7 @@
                                             <group>
                                                 <field name="applicable_to" widget="many2many_tags" required="1"/>
                                                 <field name="limited" required="1"/>
+                                                <field name="round_up"/>
                                             </group>
                                             <group>
                                                 <field name="limit" attrs="{'invisible': [('limited', '=', 'no')], 'required': [('limited', '!=', 'no')]}"/>
