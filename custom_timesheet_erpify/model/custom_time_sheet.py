@@ -45,7 +45,7 @@ class Timesheets(models.Model):
                                      default=_get_ordinary_type)
     unit_amount = fields.Float(compute=False, store=True, string='Actual Hours')
     calc_hours = fields.Float('Calculated Hours', compute='calculate_calculated_hours', store=True)
-    start_end_mand = fields.Boolean(related='project_id.start_end_mand')
+    start_end_mand = fields.Boolean(related='employee_id.project_id_erpify.start_end_mand')
 
     @api.depends('start', 'end', 'type_id_erpify', 'employee_id')
     def calculate_calculated_hours(self):
@@ -114,6 +114,7 @@ class TimeSheetSubmission(models.Model):
         result = super(TimeSheetSubmission, self).default_get(field_list)
         if 'employee_id' in field_list:
             result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
+            if ''
         return result
 
     def get_start_date(self):
