@@ -27,26 +27,5 @@
             </xpath>
         </field>
     </record>
-
-    <record id="inherit_res_partner_type_payment_form_view_erpify" model="ir.ui.view">
-        <field name="name">res_partner_type.payment.form.erpify</field>
-        <field name="model">account.payment</field>
-        <field name="inherit_id" ref="account.view_account_payment_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='partner_id']" position="attributes">
-                <attribute name="domain">[('type_erpify','=',partner_type)]</attribute>
-            </xpath>
-        </field>
-    </record>
-
-    <record id="inherit_res_user_warehouse_addition_form_view_erpify" model="ir.ui.view">
-        <field name="name">res user.warehouse.form.erpify</field>
-        <field name="model">res.users</field>
-        <field name="inherit_id" ref="base.view_users_form" />
-        <field name="arch" type="xml">
-            <xpath expr="//field[@name='tz']" position="after">
-                <field name="warehouse_id_erpify"/>
-            </xpath>
-        </field>
-    </record>
+    
 </odoo>
