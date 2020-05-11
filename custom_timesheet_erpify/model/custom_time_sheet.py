@@ -1,6 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date_obj
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
@@ -117,7 +117,7 @@ class TimeSheetSubmission(models.Model):
         return result
 
     def get_start_end_date(self):
-        today = datetime.date.today()
+        today = date_obj.today()
         current_weekday = today.weekday()
         self.start_date = today - timedelta(days=current_weekday)
         self.end_date = today + timedelta(days=6 - current_weekday)
