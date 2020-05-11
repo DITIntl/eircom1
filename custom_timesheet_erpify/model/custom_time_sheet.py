@@ -116,7 +116,7 @@ class TimeSheetSubmission(models.Model):
             result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
         return result
 
-    def get_start_end_date(self):
+    def get_start_date(self):
         today = date_obj.today()
         current_weekday = today.weekday()
         return today - timedelta(days=current_weekday)
@@ -128,7 +128,7 @@ class TimeSheetSubmission(models.Model):
 
     name = fields.Char(compute='_get_record_name', store=True)
     start_date = fields.Date(required=True, default=get_start_date)
-    end_date = fields.Date(required=True, default=get_start_end_date)
+    end_date = fields.Date(required=True, default=get_end_date)
     employee_id = fields.Many2one('hr.employee', required=True)
     timesheet_ids = fields.One2many('account.analytic.line', 'timesheet_submission_erpify_id')
     state = fields.Selection([('draft', 'Draft'), ('submit', 'Submitted'), ('approved', 'Approved'),
