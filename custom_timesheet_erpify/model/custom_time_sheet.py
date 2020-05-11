@@ -114,7 +114,6 @@ class TimeSheetSubmission(models.Model):
         result = super(TimeSheetSubmission, self).default_get(field_list)
         if 'employee_id' in field_list:
             result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
-            if ''
         return result
 
     def get_start_date(self):
