@@ -88,5 +88,15 @@
         </field>
     </record>
 
+    <record id="project_timesheet_duration_mandatory_check_erpify_form" model="ir.ui.view">
+    <field name="name">project.project.form.1</field>
+    <field name="model">project.project</field>
+    <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="before">
+                <field name="start_end_mand"/>
+            </xpath>
+        </field>
+    </record>
 
 </odoo>
