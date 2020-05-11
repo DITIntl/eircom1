@@ -12,13 +12,13 @@
                             <tree>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
-                                <field name="x_basic_db"/>
-                                <field name="x_basic_non_db"/>
+                                <field name="basic_db"/>
+                                <field name="basic_non_db"/>
                                 <field name="wage"/>
                                 <field name="name" string="Description"/>
-                                <field name="x_pay_group" optional="hide"/>
-                                <field name="x_scale_point" optional="hide"/>
-                                <field name="x_grade" optional="hide"/>
+                                <field name="pay_group" optional="hide"/>
+                                <field name="scale_point" optional="hide"/>
+                                <field name="grade" optional="hide"/>
                                 <field name="state"/>
                             </tree>
                         </field>
@@ -27,5 +27,5 @@
             </xpath>
         </field>
     </record>
-    
+
 </odoo>
