@@ -5,9 +5,11 @@ from odoo.tools import float_compare, float_is_zero
 class Contract(models.Model):
     _inherit = 'hr.contract'
 
-    wage = fields.Monetary(string='Total Salary')
-    basic_db = fields.Monetary(related='x_basic_db')
-    basic_non_db = fields.Monetary(related='x_basic_non_db')
-    grade = fields.Selection(related='x_grade')
-    scale_point = fields.Char(related='x_scale_point')
-    pay_group = fields.Selection(related='x_pay_group')
+    wage = fields.Monetary()
+    basic_db = fields.Monetary()
+    basic_non_db = fields.Monetary()
+    grade = fields.Selection([('1', '1'), ('appt','APPT'), ('cot1', 'COT1'), ('csr', 'CSR'), ('ctl', 'CTL'), ('flm', 'FLM'), ('meteor', 'METEOR'),
+                    ('nmct', 'NMCT'), ('pc', 'PC'), ('pcmetr', 'PCMETR'), ('pcni', 'PCNI'), ('pcuk', 'PCUK'), ('pczex', 'PCZEX'),
+                    ('pdtm', 'PDTM'), ('ptcsr', 'PTCSR'), ('som', 'S.O.M'), ('tex8', 'TEX8'), ('to', 'TO'), ('ttl', 'TTL')])
+    scale_point = fields.Char()
+    pay_group = fields.Char()
