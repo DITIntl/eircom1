@@ -81,7 +81,7 @@
                                             <field name="hours" widget="float_time"/>
                                             <field name="hours_after_TIL" widget="float_time"/>
                                             <field name="currency_id" invisible="1"/>
-                                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                            <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" groups="hr_payroll.group_hr_payroll_manager"/>
                                             <field name="employee_id" invisible="1"/>
                                             <field name="submission_request_id" invisible="1"/>
                                         </tree>
@@ -91,7 +91,7 @@
                                     <field name="time_in_lieu"/>
                                 </group>
                             </group>
-                            <group class="oe_subtotal_footer oe_right">
+                            <group class="oe_subtotal_footer oe_right" groups="hr_payroll.group_hr_payroll_manager">
                                 <field name="normal_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <field name="allowance_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                 <div class="oe_subtotal_footer_separator oe_inline">

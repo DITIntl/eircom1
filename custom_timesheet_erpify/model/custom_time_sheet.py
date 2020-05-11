@@ -1,6 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-from datetime import datetime
+from datetime import datetime, timedelta
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
@@ -43,8 +43,9 @@ class Timesheets(models.Model):
     timesheet_submission_erpify_id = fields.Many2one('timesheet.submission.erpify')
     type_id_erpify = fields.Many2one('timesheet.allowances.category.erpify', string='Work Type',
                                      default=_get_ordinary_type)
-    unit_amount = fields.Float(compute='calculate_duration', store=True, string='Actual Hours')
+    unit_amount = fields.Float(compute=False, store=True, string='Actual Hours')
     calc_hours = fields.Float('Calculated Hours', compute='calculate_calculated_hours', store=True)
+    start_end_mand = fields.Boolean(related='project_id.start_end_mand')
 
     @api.depends('start', 'end', 'type_id_erpify', 'employee_id')
     def calculate_calculated_hours(self):
@@ -84,11 +85,13 @@ class Timesheets(models.Model):
             result.employee_shift_erpify = result.employee_id.resource_calendar_id.id
         return result
 
-    @api.depends('end')
+    @api.onchange('start', 'end')
     def calculate_duration(self):
         for r in self:
             if r.start and r.end:
                 r.unit_amount = r.end - r.start
+            else:
+                r.unit_amount = r.unit_amount
 
     @api.constrains('start', 'end', 'type_id_erpify')
     def check_validaty_of_start_end(self):
@@ -113,9 +116,15 @@ class TimeSheetSubmission(models.Model):
             result['employee_id'] = self.env['hr.employee'].search([('user_id', '=', self.env.uid)], limit=1).id
         return result
 
+    def get_start_end_date(self):
+        today = datetime.date.today()
+        current_weekday = today.weekday()
+        self.start_date = today - timedelta(days=current_weekday)
+        self.end_date = today + timedelta(days=6 - current_weekday)
+
     name = fields.Char(compute='_get_record_name', store=True)
-    start_date = fields.Date(required=True)
-    end_date = fields.Date(required=True)
+    start_date = fields.Date(required=True, default=get_start_end_date)
+    end_date = fields.Date(required=True, default=get_start_end_date)
     employee_id = fields.Many2one('hr.employee', required=True)
     timesheet_ids = fields.One2many('account.analytic.line', 'timesheet_submission_erpify_id')
     state = fields.Selection([('draft', 'Draft'), ('submit', 'Submitted'), ('approved', 'Approved'),
@@ -151,8 +160,16 @@ class TimeSheetSubmission(models.Model):
 
     @api.constrains('start_date', 'end_date')
     def _onchange_start_date_or_end_date(self):
-        if self.start_date and self.end_date and self.end_date < self.start_date:
-            raise ValidationError(_('The end date should be greater than the starting date.'))
+        if self.start_date and self.end_date:
+            if self.end_date < self.start_date:
+                raise ValidationError(_('The end date should be greater than the starting date.'))
+            start = self.start_date.weekday()
+            end = self.end_date.weekday()
+            if start != 0 or end != 6:
+                raise ValidationError('Your week duration should start from Monday to Sunday.')
+            duration = (self.end_date - self.start_date).days
+            if duration != 7:
+                raise ValidationError('A week cannot be of more or less than 7 days.')
 
     def fetch_timesheets(self):
         if self.start_date and self.end_date and self.employee_id:
@@ -234,3 +251,9 @@ class Employee(models.Model):
     _inherit = 'hr.employee'
 
     project_id_erpify = fields.Many2one('project.project', 'Timesheet Project')
+
+
+class TimesheetProject(models.Model):
+    _inherit = 'project.project'
+
+    start_end_mand = fields.Boolean('Is Start and End time Mandatory?', default=True)
