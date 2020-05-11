@@ -1,6 +1,6 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
-from datetime import datetime, timedelta, date_obj
+from datetime import datetime, timedelta, date as date_obj
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 
 
