@@ -173,7 +173,7 @@ class TimeSheetSubmission(models.Model):
             if start != 0 or end != 6:
                 raise ValidationError('Your week duration should start from Monday to Sunday.')
             duration = (self.end_date - self.start_date).days
-            if duration != 7:
+            if duration != 6:
                 raise ValidationError('A week cannot be of more or less than 7 days.')
 
     def fetch_timesheets(self):
