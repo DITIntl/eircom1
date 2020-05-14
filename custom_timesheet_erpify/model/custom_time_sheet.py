@@ -81,6 +81,7 @@ class Timesheets(models.Model):
             vals.update({'project_id': employee.project_id_erpify.id,
                          'account_id': employee.project_id_erpify.analytic_account_id.id})
         result = super(Timesheets, self).create(vals)
+        result.calculate_duration()
         if result.employee_id:
             result.employee_shift_erpify = result.employee_id.resource_calendar_id.id
         return result
