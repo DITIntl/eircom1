@@ -9,8 +9,8 @@ import dateutil
 class Employee(models.Model):
     _inherit = "hr.employee"
 
-    def get_number_of_leaves_in(self, leave_types=[], months=12):
-        since = date.today() - timedelta(months=months)
+    def get_number_of_leaves_in(self, leave_types=[], lastmonths=12):
+        since = date.today() - timedelta(months=lastmonths)
         applied_leaves = self.env['hr.leave'].search([('employee_id', '=', self.id), ('state', '=', 'validate'), ('holiday_status_id', 'in', leave_types),
                                      ('request_date_from', '>=', since)])
         if applied_leaves:
