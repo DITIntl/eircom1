@@ -12,6 +12,7 @@
                     <field name="depends_erpify"/>
                     <field name="id" invisible="1"/>
                     <field name="depends_leave_type_erpify" options="{'no_create_edit': True}" domain="[('id', '!=', id)]" attrs="{'invisible': [('depends_erpify', '=', False)], 'required': [('depends_erpify', '=', True)]}"/>
+                    <field name="restrict_continous_leaves_upto"/>
                 </xpath>
                 <xpath expr="//group[@name='calendar']" position="after">
                     <group name="rules" string="Rules" colspan="2">

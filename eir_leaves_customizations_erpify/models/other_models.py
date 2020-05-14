@@ -115,6 +115,10 @@ class ActualLeave(models.Model):
             remaining_found = sum(history_usage.mapped('number_of_days'))
             if remaining_found > 0:
                 raise ValidationError("Sorry, you have " + leave.holiday_status_id.depends_leave_type_erpify.name + " available. Please utilize it first before applying to this category.")
+        if leave.holiday_status_id.restrict_continous_leaves_upto and leave.number_of_days > leave.holiday_status_id.restrict_continous_leaves_upto:
+            raise ValidationError(
+                "Sorry, you can not apply for " + leave.holiday_status_id.name + " for more than " + leave.holiday_status_id.restrict_continous_leaves_upto + " day(s). Please try with any other leave type.")
+
         docs = self.env['leave.docs.management.erpify'].search([('leave_type_id', '=', leave.holiday_status_id.id)])
         for d in docs:
             self.env['leave.attached.docs.erpify'].create({

@@ -24,6 +24,7 @@ class Leaves(models.Model):
     depends_erpify = fields.Boolean('Depends on another Leave type?')
     depends_leave_type_erpify = fields.Many2one('hr.leave.type', string='Depends on',
                                 help="This leave can be used after consuming all the leaves in this dependent type.")
+    restrict_continous_leaves_upto = fields.Integer('Restriction Continuous Leaves Upto? (Days)')
 
 
 class LeaveApprovalRules(models.Model):
