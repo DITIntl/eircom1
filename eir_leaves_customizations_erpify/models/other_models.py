@@ -81,6 +81,7 @@ class ActualLeave(models.Model):
     approval_history_ids = fields.One2many('approval.history.erpify', 'leave_id', 'Leave Approvals')
     dynamic_approver_responsible_erpify = fields.Many2one('res.users')
     can_assign_dynamic_approver = fields.Boolean(compute='_can_assign_dynamic_approver_erpify')
+    employee_was_on_probation = fields.Boolean()
 
     @api.depends('state', 'employee_id', 'ongoing_approval')
     def _can_assign_dynamic_approver_erpify(self):
@@ -99,9 +100,16 @@ class ActualLeave(models.Model):
         else:
             return False
 
+    def check_employee_probation_erpify(self):
+        if self.employee_id.contract_id and self.employee_id.contract_id.trial_date_end:
+            if self.date_to <= self.employee_id.contract_id.trial_date_end:
+                return True
+        return False
+
     @api.model
     def create(self, vals):
         leave = super(ActualLeave, self).create(vals)
+        leave.employee_was_on_probation = leave.check_employee_probation_erpify()
         if leave.holiday_status_id.only_once_erpify:
             found = self.env['hr.leave'].search(
                 [('employee_id', '=', leave.employee_id.id), ('holiday_status_id', '=', leave.holiday_status_id.id),
@@ -117,7 +125,7 @@ class ActualLeave(models.Model):
                 raise ValidationError("Sorry, you have " + leave.holiday_status_id.depends_leave_type_erpify.name + " available. Please utilize it first before applying to this category.")
         if leave.holiday_status_id.restrict_continous_leaves_upto and leave.number_of_days > leave.holiday_status_id.restrict_continous_leaves_upto:
             raise ValidationError(
-                "Sorry, you can not apply for " + leave.holiday_status_id.name + " for more than " + str(leave.holiday_status_id.restrict_continous_leaves_upto) + " day(s). Please try with any other leave type.")
+                "Sorry, you can not apply for " + leave.holiday_status_id.name + " continuously for more than " + str(leave.holiday_status_id.restrict_continous_leaves_upto) + " day(s). Please try with any other leave type.")
 
         docs = self.env['leave.docs.management.erpify'].search([('leave_type_id', '=', leave.holiday_status_id.id)])
         for d in docs:

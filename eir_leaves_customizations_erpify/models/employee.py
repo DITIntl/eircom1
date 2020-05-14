@@ -17,3 +17,11 @@ class Employee(models.Model):
             return sum(applied_leaves.mapped('number_of_days'))
         else:
             return 0
+
+    def get_probation_leaves(self, date_from, date_to):
+        leaves = self.env['hr.leave'].search([('employee_was_on_probation', '=', True), ('state', '=', 'validate'),
+                                     ('date_from', '>=', date_from), ('date_to', '<=', date_to), ('employee_id', '=', self.id)])
+        if leaves:
+            return sum(leaves.mapped('number_of_days'))
+        else:
+            return 0
