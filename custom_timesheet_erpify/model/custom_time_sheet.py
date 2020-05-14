@@ -47,7 +47,7 @@ class Timesheets(models.Model):
     calc_hours = fields.Float('Calculated Hours', compute='calculate_calculated_hours', store=True)
     start_end_mand = fields.Boolean(related='employee_id.project_id_erpify.start_end_mand')
 
-    @api.depends('start', 'end', 'type_id_erpify', 'employee_id')
+    @api.depends('start', 'end', 'type_id_erpify', 'employee_id', 'unit_amount')
     def calculate_calculated_hours(self):
         for record in self:
             if record.type_id_erpify and record.employee_id:
