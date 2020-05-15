@@ -25,3 +25,4 @@ class Employee(models.Model):
             return sum(leaves.mapped('number_of_days'))
         else:
             return 0
+

@@ -102,7 +102,7 @@ class ActualLeave(models.Model):
 
     def check_employee_probation_erpify(self):
         if self.sudo().employee_id.contract_id and self.sudo().employee_id.contract_id.trial_date_end:
-            if self.date_to <= self.sudo().employee_id.contract_id.trial_date_end:
+            if self.date_to.date() <= self.sudo().employee_id.contract_id.trial_date_end:
                 return True
         return False
 
