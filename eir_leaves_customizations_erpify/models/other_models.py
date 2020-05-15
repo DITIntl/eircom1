@@ -71,6 +71,20 @@ class ApprovalHistory(models.Model):
 class ActualLeave(models.Model):
     _inherit = "hr.leave"
 
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super(ActualLeave, self).default_get(fields_list)
+        defaults = self._default_get_request_parameters(defaults)
+
+        LeaveType = self.env['hr.leave.type'].with_context(employee_id=defaults.get('employee_id'),
+                                                           default_date_from=defaults.get('date_from',
+                                                                                          fields.Datetime.now()))
+        lt = LeaveType.search([('valid', '=', True)], limit=1)
+
+        defaults['holiday_status_id'] = lt.id if lt else defaults.get('holiday_status_id')
+        defaults['state'] = 'draft'
+        return defaults
+
     attached_leave_docs_erpify = fields.One2many('leave.attached.docs.erpify', 'leave_id')
     ongoing_approval = fields.Integer()
     kanban_state = fields.Selection([
