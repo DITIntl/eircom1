@@ -206,7 +206,7 @@ class ActualLeave(models.Model):
                        fields.Datetime.to_string(holiday.date_to), self.get_note_for_approver_erpify())
             # if holiday.state == 'draft':
             #     to_clean |= holiday
-            if holiday.state == 'confirm':
+            if holiday.state in ['confirm', 'draft']:
                 responsibles = self._get_responsible_for_approval_erpify()
                 if responsibles:
                     for responsible in responsibles:
