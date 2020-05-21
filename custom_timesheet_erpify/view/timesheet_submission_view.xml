@@ -166,7 +166,7 @@
             <field name="name">Submit Allowance Details</field>
             <field name="model">timesheet.submission.allowances.erpify</field>
             <field name="arch" type="xml">
-                <form>
+                <form create="0">
                     <group>
                         <field name="x_rate" invisible="1"/>
                         <field name="x_days" invisible="1"/>
