@@ -17,6 +17,7 @@ class TimeSheetSubmissionAllowances(models.Model):
     submission_request_id = fields.Many2one('timesheet.submission.erpify')
     currency_id = fields.Many2one(related='submission_request_id.currency_id')
     is_weekly = fields.Boolean(related='name.is_weekly')
+    compute_amount = fields.Float()
     # Fields to show
     x_rate = fields.Boolean('Rate %?', related='name.x_rate')
     x_days = fields.Boolean('Days?', related='name.x_days')
@@ -41,17 +42,22 @@ class TimeSheetSubmissionAllowances(models.Model):
                     'team_code': rec.team_code,
                     'rank': rec.rank,
                     'number_of_calls': rec.number_of_calls,
-                    'result': 0.0,
+                    'result_hours': 0.0,
+                    'result_amount': 0.0,
                 })
                 safe_eval(rec.name.python_code or 0.0, localdict, mode='exec', nocopy=True)
-                self.hours = localdict['result']
+                self.hours = localdict['result_hours']
+                self.compute_amount = localdict['result_amount']
 
     @api.depends('hours', 'employee_id', 'submission_request_id.time_in_lieu')
     def get_amount(self):
         for r in self:
-            til = r.hours - (r.hours * r.submission_request_id.time_in_lieu / 100)
-            r.amount = til * r.employee_id.timesheet_cost
-            r.hours_after_TIL = til
+            if r.is_weekly and r.compute_amount:
+                r.amount = r.compute_amount
+            else:
+                til = r.hours - (r.hours * r.submission_request_id.time_in_lieu / 100)
+                r.amount = til * r.employee_id.timesheet_cost
+                r.hours_after_TIL = til
 
     def add_data(self):
         if self.submission_request_id.state == 'submit':
