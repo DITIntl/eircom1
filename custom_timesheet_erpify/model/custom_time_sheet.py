@@ -233,7 +233,8 @@ class TimeSheetSubmission(models.Model):
     def fetch_timesheets(self):
         if self.start_date and self.end_date and self.employee_id:
             timesheets = self.env['account.analytic.line'].search([('employee_id', '=', self.employee_id.id), ('date', '>=', self.start_date),
-                                                      ('date', '<=', self.end_date), ('timesheet_submission_erpify_id', 'in', [False, self.id])]).ids
+                                                      ('date', '<=', self.end_date), ('timesheet_submission_erpify_id', 'in', [False, self.id]),
+                                                                   ('project_id', '=', self.employee_id.project_id_erpify.id)]).ids
             if timesheets:
                 self.timesheet_ids = [(6, 0, timesheets)]
             if self.allowances_ids:
