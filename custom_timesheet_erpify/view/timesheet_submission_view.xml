@@ -77,6 +77,7 @@
                                 <div class="oe_inline">
                                     <field name="allowances_ids" readonly="1">
                                         <tree string="Allowances">
+                                            <field name="is_weekly" invisible="1"/>
                                             <field name="name"/>
                                             <field name="hours" widget="float_time"/>
                                             <field name="hours_after_TIL" widget="float_time"/>
@@ -84,6 +85,7 @@
                                             <field name="amount" widget="monetary" options="{'currency_field': 'currency_id'}" groups="hr_payroll.group_hr_payroll_manager"/>
                                             <field name="employee_id" invisible="1"/>
                                             <field name="submission_request_id" invisible="1"/>
+                                            <button name="add_data" string="Add Details" type="object" attrs="{'invisible': [('is_weekly', '=', False)]}"/>
                                         </tree>
                                     </field>
                                 </div>
@@ -156,6 +158,31 @@
                         <button string="Proceed" name="proceed" type="object" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel" />
                     </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="allowance_popup_timesheet_submission_form_erpify" model="ir.ui.view">
+            <field name="name">Submit Allowance Details</field>
+            <field name="model">timesheet.submission.allowances.erpify</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="x_rate" invisible="1"/>
+                        <field name="x_days" invisible="1"/>
+                        <field name="x_hours" invisible="1"/>
+                        <field name="x_team_code" invisible="1"/>
+                        <field name="x_rank" invisible="1"/>
+                        <field name="x_number_of_calls" invisible="1"/>
+                        <group>
+                            <field name="rate" attrs="{'invisible': [('x_rate', '=', False)]}"/>
+                            <field name="days" attrs="{'invisible': [('x_days', '=', False)]}"/>
+                            <field name="hours" attrs="{'invisible': [('x_hours', '=', False)]}"/>
+                            <field name="team_code" attrs="{'invisible': [('x_team_code', '=', False)]}"/>
+                            <field name="rank" attrs="{'invisible': [('x_rank', '=', False)]}"/>
+                            <field name="number_of_calls" attrs="{'invisible': [('x_number_of_calls', '=', False)]}"/>
+                        </group>
+                    </group>
                 </form>
             </field>
         </record>

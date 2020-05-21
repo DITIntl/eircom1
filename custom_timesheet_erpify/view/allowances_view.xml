@@ -17,14 +17,15 @@
                                 <field name="show_in_timesheet"/>
                                 <field name="select_by_default"/>
                                 <field name="apply_restriction"/>
+                                <field name="is_weekly"/>
                             </group>
                             <group>
-                                <field name="start" widget="float_time" attrs="{'invisible': [('apply_restriction', '=', 'no')], 'required': [('apply_restriction', '=', 'define')]}"/>
-                                <field name="end" widget="float_time" attrs="{'invisible': [('apply_restriction', '=', 'no')], 'required': [('apply_restriction', '=', 'define')]}"/>
+                                <field name="start" widget="float_time" attrs="{'invisible': ['|', ('apply_restriction', '=', 'no'), ('is_weekly', '=', True)], 'required': [('apply_restriction', '=', 'define')]}"/>
+                                <field name="end" widget="float_time" attrs="{'invisible': ['|', ('apply_restriction', '=', 'no'), ('is_weekly', '=', True)], 'required': [('apply_restriction', '=', 'define')]}"/>
                             </group>
                         </group>
                         <notebook>
-                            <page name="rules" string="Rules">
+                            <page name="rules" string="Rules" attrs="{'invisible': [('is_weekly', '=', True)]}">
                                 <field name="rule_line_ids">
                                     <tree>
                                         <field name="applicable_to" widget="many2many_tags" required="1"/>
@@ -49,6 +50,23 @@
                                         </group>
                                     </form>
                                 </field>
+                            </page>
+                            <page name="weekly" string="Weekly Allowance Config" attrs="{'invisible': [('is_weekly', '=', False)]}">
+                                <group string="Fields for Input">
+                                    <group>
+                                        <field name="x_rate"/>
+                                        <field name="x_days"/>
+                                        <field name="x_hours"/>
+                                    </group>
+                                    <group>
+                                        <field name="x_team_code"/>
+                                        <field name="x_rank"/>
+                                        <field name="x_number_of_calls"/>
+                                    </group>
+                                </group>
+                                <group string="Logic">
+                                    <field name="python_code"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>

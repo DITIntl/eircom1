@@ -2,6 +2,7 @@ from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 from datetime import datetime, timedelta, date as date_obj
 from odoo.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
+from odoo.tools.safe_eval import safe_eval
 
 
 class TimeSheetSubmissionAllowances(models.Model):
@@ -15,6 +16,35 @@ class TimeSheetSubmissionAllowances(models.Model):
     employee_id = fields.Many2one('hr.employee')
     submission_request_id = fields.Many2one('timesheet.submission.erpify')
     currency_id = fields.Many2one(related='submission_request_id.currency_id')
+    is_weekly = fields.Boolean(related='name.is_weekly')
+    # Fields to show
+    x_rate = fields.Boolean('Rate %?', related='name.x_rate')
+    x_days = fields.Boolean('Days?', related='name.x_days')
+    x_hours = fields.Boolean('Hours?', related='name.x_hours')
+    x_team_code = fields.Boolean('Team Code?', related='name.x_team_code')
+    x_rank = fields.Boolean('Rank?', related='name.x_rank')
+    x_number_of_calls = fields.Boolean('Number of Calls?', related='name.x_number_of_calls')
+    # Actual Fields
+    rate = fields.Float('Rate %')
+    days = fields.Integer('Days')
+    team_code = fields.Char('Team Code')
+    rank = fields.Char('Rank')
+    number_of_calls = fields.Integer('Number of Calls')
+
+    def _compute_rule(self, localdict):
+        for rec in self:
+            if rec.is_weekly:
+                localdict.update(**{
+                    'rate': rec.rate,
+                    'hours': rec.hours,
+                    'days': rec.days,
+                    'team_code': rec.team_code,
+                    'rank': rec.rank,
+                    'number_of_calls': rec.number_of_calls,
+                    'result': 0.0,
+                })
+                safe_eval(rec.name.python_code or 0.0, localdict, mode='exec', nocopy=True)
+                self.hours = localdict['result']
 
     @api.depends('hours', 'employee_id', 'submission_request_id.time_in_lieu')
     def get_amount(self):
@@ -22,6 +52,20 @@ class TimeSheetSubmissionAllowances(models.Model):
             til = r.hours - (r.hours * r.submission_request_id.time_in_lieu / 100)
             r.amount = til * r.employee_id.timesheet_cost
             r.hours_after_TIL = til
+
+    def add_data(self):
+        if self.submission_request_id.state == 'submit':
+            raise ValidationError('You cannot change or add any allowance once the request is submitted.')
+        view_id = self.env.ref('custom_timesheet_erpify.allowance_popup_timesheet_submission_form_erpify').id
+        return {
+            'name': _('Submit Allowance Details'),
+            'view_mode': 'form',
+            'views': [[view_id, 'form']],
+            'res_model': 'timesheet.submission.allowances.erpify',
+            'type': 'ir.actions.act_window',
+            'res_id': self.id,
+            'target': 'new'
+            }
 
 
 class Timesheets(models.Model):
@@ -60,8 +104,8 @@ class Timesheets(models.Model):
             rule = record.type_id_erpify.get_rule(record.employee_id.resource_calendar_id)
             if rule and rule.limited == 'yes':
                 if rule.number_of_occurences:
-                    week_start = date - datetime.timedelta(days=record.date.weekday())
-                    week_end = date + datetime.timedelta(days=6 - record.date.weekday())
+                    week_start = record.date - datetime.timedelta(days=record.date.weekday())
+                    week_end = record.date + datetime.timedelta(days=6 - record.date.weekday())
                     timesheet_entries = self.env['account.analytic.line'].search([('employee_id', '=', record.employee_id.id), ('date', '>=', week_start), ('date', '<=', week_end),
                                                               ('type_id_erpify', '=', record.type_id_erpify.id)])
                     if timesheet_entries and len(timesheet_entries) + 1 > rule.number_of_occurences:
@@ -144,7 +188,17 @@ class TimeSheetSubmission(models.Model):
     total_amount = fields.Float(compute='_compute_all_amounts', store=True)
     time_in_lieu = fields.Integer('Time in Lieu %', default=50)
 
-    @api.depends('timesheet_ids.unit_amount', 'time_in_lieu', 'start_date', 'end_date', 'employee_id')
+    def _calculate_weekly_allowances(self):
+        employee = self.employee_id
+        localdict = {
+            **{
+                'employee': employee,
+            }
+        }
+        for allowance in self.allowances_ids:
+            allowance._compute_rule(localdict)
+
+    @api.depends('timesheet_ids.unit_amount', 'time_in_lieu', 'start_date', 'end_date', 'employee_id', 'allowances_ids.hours')
     def _compute_all_amounts(self):
         for rec in self:
             normal_hours = rec.timesheet_ids.filtered(lambda r: r.type_id_erpify.select_by_default)
@@ -182,6 +236,22 @@ class TimeSheetSubmission(models.Model):
                                                       ('date', '<=', self.end_date), ('timesheet_submission_erpify_id', 'in', [False, self.id])]).ids
             if timesheets:
                 self.timesheet_ids = [(6, 0, timesheets)]
+            if self.allowances_ids:
+                self.allowances_ids.unlink()
+            all_categ = self.env['timesheet.allowances.category.erpify'].search([('select_by_default', '=', False)])
+            for categ in all_categ:
+                t = self.timesheet_ids.filtered(lambda r: r.type_id_erpify.id == categ.id)
+                if t:
+                    t_sum = sum(t.mapped('calc_hours'))
+                else:
+                    t_sum = 0
+                self.env['timesheet.submission.allowances.erpify'].create({
+                    'name': categ.id,
+                    'hours': t_sum,
+                    'submission_request_id': self.id,
+                    'employee_id': self.employee_id.id,
+                    'hours_after_TIL': t_sum - (t_sum * self.time_in_lieu / 100),
+                })
 
     def cancel(self):
         self.state = 'cancel'
@@ -202,25 +272,9 @@ class TimeSheetSubmission(models.Model):
         }
 
     def submit_request(self):
-        self.fetch_timesheets()
-        if self.allowances_ids:
-            self.allowances_ids.unlink()
-        all_categ = self.env['timesheet.allowances.category.erpify'].search([('select_by_default', '=', False)])
-        for categ in all_categ:
-            t = self.timesheet_ids.filtered(lambda r: r.type_id_erpify.id == categ.id)
-            if t:
-                t_sum = sum(t.mapped('calc_hours'))
-            else:
-                t_sum = 0
-            self.env['timesheet.submission.allowances.erpify'].create({
-                'name': categ.id,
-                'hours': t_sum,
-                'submission_request_id': self.id,
-                'employee_id': self.employee_id.id,
-                'hours_after_TIL': t_sum - (t_sum * self.time_in_lieu / 100),
-            })
         self.submission_date = datetime.now()
         self.state = 'submit'
+        self._calculate_weekly_allowances()
 
 
 class ApprovalMatrixTimesheet(models.Model):

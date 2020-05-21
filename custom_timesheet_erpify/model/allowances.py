@@ -17,6 +17,14 @@ class Allowances(models.Model):
     apply_restriction = fields.Selection([('no', 'No'), ('schedule', "Based on Employee's Work Schedule"),
                                           ('define', 'As defined in Start and End time')], string='Apply Restrictions?', default='no')
     rule_line_ids = fields.One2many('timesheet.allowances.rules.erpify', 'timesheet_allowance_categ_id', string='Rules')
+    is_weekly = fields.Boolean('Is weekly?')
+    python_code = fields.Text('Python Code')
+    x_rate = fields.Boolean('Rate %?')
+    x_days = fields.Boolean('Days?')
+    x_hours = fields.Boolean('Hours?')
+    x_team_code = fields.Boolean('Team Code?')
+    x_rank = fields.Boolean('Rank?')
+    x_number_of_calls = fields.Boolean('Number of Calls?')
 
     def check_restriction(self, date, start, end, employee_id):
         if self.apply_restriction == 'no':
