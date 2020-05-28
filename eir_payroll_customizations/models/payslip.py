@@ -7,7 +7,7 @@ from odoo.exceptions import ValidationError
 class PayslipBatch(models.Model):
     _inherit = 'hr.payslip.run'
 
-    salary_structure_id_erpify = fields.Many2one('hr.payroll.structure')
+    salary_structure_id_erpify = fields.Many2one('hr.payroll.structure', string='Pay Group')
     last_batch_history = fields.Html(compute='_compute_last_batch_history_erpify', store=True)
 
     @api.depends('salary_structure_id_erpify')

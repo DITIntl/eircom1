@@ -11,14 +11,14 @@
             <xpath expr="//field[@name='work_email']" position="after">
                 <field name="bank_account_no"/>
             </xpath>
-            <xpath expr="//field[@name='resource_calendar_id']" position="before">
+            <xpath expr="//field[@name='tz']" position="after">
                 <field name="joining_date" required="1"/>
                 <!--<field name="time_in_lieu_balance" readonly="1"/>-->
             </xpath>
             <xpath expr="//page[@name='hr_settings']" position="after">
                 <page name="leaving_details_erpify" string="Leaving Details" groups="hr.group_hr_user" attrs="{'invisible': [('leaving_date', '=', False)]}">
                     <group>
-                        <field name="joining_date" readonly="1"/>
+                        <!--<field name="joining_date" readonly="1"/>-->
                         <field name="leaving_date" readonly="1"/>
                         <field name="remaining_leaves_offboarding_erpify" readonly="1"/>
                         <field name="time_in_lieu_balance" readonly="1"/>
