@@ -133,7 +133,9 @@ class LeaveReport(models.Model):
                         request.date_from as date_from,
                         request.date_to as date_to,
                         request.payslip_status as payslip_status,
-                        'request' as leave_type
+                        'request' as leave_type,
+                        null AS allocation_period_start,
+                        null AS allocation_period_end
                     from hr_leave as request) leaves
                 );
             """)
