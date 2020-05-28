@@ -28,7 +28,7 @@ from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from odoo.exceptions import Warning
 
 class BranchesLedgerReportSalesRevenue(models.AbstractModel):
-    _name = 'report.salary_sheet.drivers_reward_id'
+    _name = 'report.salary_sheet_eir.drivers_reward_id'
 
     @api.model
     def _get_report_values(self, docids, data=None):

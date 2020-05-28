@@ -20,8 +20,8 @@
 
             id="report_for_drivers_reward_id" 
             model="fleet.vehicle.trip"
-            name="salary_sheet.drivers_reward_id"
-            file="salary_sheet.drivers_reward_id"
+            name="salary_sheet_eir.drivers_reward_id"
+            file="salary_sheet_eir.drivers_reward_id"
             report_type="qweb-html"
             string="Salary Sheet Report"
             paperformat="paperformat_drivers_reward_template"
