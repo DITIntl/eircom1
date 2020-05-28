@@ -43,7 +43,7 @@ class SalarySheet(models.TransientModel):
 
     def _print_report(self, data):
         data['form'].update(self.read(['form', 'to'])[0])
-        return self.env.ref('salary_sheet.report_for_drivers_reward_id').report_action(self, data=data)
+        return self.env.ref('salary_sheet_eir.report_for_drivers_reward_id').report_action(self, data=data)
 
 
 class hr_salary_rule_ext(models.Model):
