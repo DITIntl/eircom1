@@ -36,11 +36,11 @@ class Employee(models.Model):
 
     def get_remaining_leaves_offboarding_erpify(self):
         if self.contract_id:
-            total_allocations = self.env['hr.leave.allocation'].search([('employee_id', '=', self.id), ('state', '=', 'validate'),
+            total_allocations = self.env['hr.leave.report'].search([('employee_id', '=', self.id), ('state', '=', 'validate'),
                                                                         ('leave_type', '=', 'allocation'), ('holiday_status_id.allocation_type', 'in', ['fixed_allocation', 'fixed'])])
-            current_year_allocations = self.env['hr.leave.allocation'].search([('employee_id', '=', self.id), ('allocation_period_start', '>=', self.contract_id.date_start),
+            current_year_allocations = self.env['hr.leave.report'].search([('employee_id', '=', self.id), ('allocation_period_start', '>=', self.contract_id.date_start),
                                                     ('state', '=', 'validate'), ('leave_type', '=', 'allocation'), ('holiday_status_id.allocation_type', 'in', ['fixed_allocation', 'fixed'])])
-            leaves_till_leaving_date = self.env['hr.leave.allocation'].search([('employee_id', '=', self.id), ('state', '=', 'validate'), ('leave_type', '=', 'request'), ('holiday_status_id.allocation_type', 'in', ['fixed_allocation', 'fixed'])])
+            leaves_till_leaving_date = self.env['hr.leave.report'].search([('employee_id', '=', self.id), ('state', '=', 'validate'), ('leave_type', '=', 'request'), ('holiday_status_id.allocation_type', 'in', ['fixed_allocation', 'fixed'])])
             total_allocations = sum(total_allocations.mapped('number_of_days')) if total_allocations else 0
             current_year_allocations = sum(current_year_allocations.mapped('number_of_days')) if current_year_allocations else 0
             leaves_till_leaving_date = sum(
