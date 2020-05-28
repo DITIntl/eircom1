@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 
 
 class Leaves(models.Model):
-    _inherit = 'hr.leaves'
+    _inherit = 'hr.leave'
 
     def write(self, vals):
         res = super(Leaves, self).write(vals)
