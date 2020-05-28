@@ -14,7 +14,7 @@ class PayslipBatch(models.Model):
     def _compute_last_batch_history_erpify(self):
         for rec in self:
             if rec.salary_structure_id_erpify:
-                latest_batch = self.env['hr.payslip.run'].search([('state', '!=', 'draft'), ('id', '!=', self.id),
+                latest_batch = self.env['hr.payslip.run'].search([('state', '!=', 'draft'), ('id', '!=', self._origin.id),
                                                    ('salary_structure_id_erpify', '=', rec.salary_structure_id_erpify.id)],
                                                   order='date_start DESC', limit=1)
                 if latest_batch:
