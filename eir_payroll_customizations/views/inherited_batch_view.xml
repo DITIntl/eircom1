@@ -8,7 +8,7 @@
             <xpath expr="//field[@name='credit_note']" position="before">
                 <field name="salary_structure_id_erpify"/>
             </xpath>
-            <xpath expr="//div[@class='o_row']" position="after">
+            <xpath expr="//group" position="after">
                 <div>
                     <label for="last_batch_history" string="Last Payroll History"/>
                     <div>
