@@ -24,7 +24,7 @@ class Employee(models.Model):
 
     def write(self, vals):
         res = super(Employee, self).write(vals)
-        pending = res.slip_ids.filtered(lambda r: r.state in ['draft', 'verify'])
+        pending = self.slip_ids.filtered(lambda r: r.state in ['draft', 'verify'])
         if pending:
             raise ValidationError("You cannot make changes to the record because a payroll is in progress for this employee.")
         return res
