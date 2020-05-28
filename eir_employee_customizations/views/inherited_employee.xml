@@ -28,4 +28,16 @@
         </field>
     </record>
 
+    <!-- Contracts -->
+    <record id="inherit_employee_contracts_form_view_erpify12" model="ir.ui.view">
+        <field name="name">hr_employee_contracts.form.erpify</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="cost_center"/>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>

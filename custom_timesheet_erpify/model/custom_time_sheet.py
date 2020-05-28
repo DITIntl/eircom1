@@ -317,6 +317,7 @@ class Employee(models.Model):
     _inherit = 'hr.employee'
 
     project_id_erpify = fields.Many2one('project.project', 'Timesheet Project')
+    time_in_lieu_balance = fields.Float('Time in Lieu Balance (hours)')
 
 
 class TimesheetProject(models.Model):

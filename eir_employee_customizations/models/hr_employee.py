@@ -13,3 +13,4 @@ class Contract(models.Model):
                     ('pdtm', 'PDTM'), ('ptcsr', 'PTCSR'), ('som', 'S.O.M'), ('tex8', 'TEX8'), ('to', 'TO'), ('ttl', 'TTL')])
     scale_point = fields.Char()
     pay_group = fields.Char()
+    cost_center = fields.Char()

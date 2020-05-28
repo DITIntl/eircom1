@@ -72,6 +72,7 @@
     <field name="arch" type="xml">
         <xpath expr="//field[@name='company_id']" position="after">
             <field name="project_id_erpify" required="1"/>
+            <field name="time_in_lieu_balance" readonly="1" widget="float_time"/>
         </xpath>
     </field>
     </record>
