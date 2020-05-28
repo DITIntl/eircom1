@@ -20,11 +20,11 @@ class PayslipBatch(models.Model):
                 if latest_batch:
                     dicts = self.get_figures_erpify(latest_batch)
                     currency = self.company_id.currency_id.symbol
-                    rec.last_batch_history = _('Last payroll for <b>%s</b> was ran for <b>%s</b> to <b>%s</b>.'
-                                               'Summary is as follows:\n'
-                                               '<b>Gross:</b> %s %s\n'
-                                               '<b>Deductions:</b> %s %s\n'
-                                               '<b>Net:</b> %s %s\n') % (
+                    rec.last_batch_history = _('Last payroll for <b>%s</b> was ran for <b>%s</b> to <b>%s</b>.<br>'
+                                               'Summary is as follows:<br>'
+                                               '<b>Gross:</b> %s %s<br>'
+                                               '<b>Deductions:</b> %s %s<br>'
+                                               '<b>Net:</b> %s %s<br>') % (
                                                  latest_batch.salary_structure_id_erpify.name, latest_batch.date_start,
                                                  latest_batch.date_end, currency, dicts['gross'], currency, dicts['deductions'],
                                                 currency, dicts['net'])
