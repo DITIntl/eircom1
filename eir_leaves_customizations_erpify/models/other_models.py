@@ -88,7 +88,10 @@ class ActualLeave(models.Model):
     @api.depends('attached_leave_docs_erpify')
     def _compute_attached_leave_docs_erpify(self):
         for rec in self:
-            rec.is_documents_attached = all(rec.attached_leave_docs_erpify.mapped('is_uploaded'))
+            if not rec.attached_leave_docs_erpify:
+                rec.is_documents_attached = False
+            else:
+                rec.is_documents_attached = all(rec.attached_leave_docs_erpify.mapped('is_uploaded'))
 
     attached_leave_docs_erpify = fields.One2many('leave.attached.docs.erpify', 'leave_id')
     is_documents_attached = fields.Boolean('Documents Attached?', compute='_compute_attached_leave_docs_erpify', store=True)
