@@ -9,6 +9,21 @@ class PayslipBatch(models.Model):
 
     salary_structure_id_erpify = fields.Many2one('hr.payroll.structure', string='Pay Group')
     last_batch_history = fields.Html(compute='_compute_last_batch_history_erpify', store=True)
+    current_batch_details = fields.Html(compute='_compute_current_batch_details', store=True)
+
+    @api.depends('state')
+    def _compute_current_batch_details(self):
+        for rec in self:
+            if rec.state in ['verify', 'close']:
+                dicts = self.get_figures_erpify(rec)
+                currency = self.company_id.currency_id.symbol
+                rec.current_batch_details = _('The summary of this batch is as follows:<br>'
+                                           '<b>Gross:</b> %s %s<br>'
+                                           '<b>Deductions:</b> %s %s<br>'
+                                           '<b>Net:</b> %s %s<br>') % (
+                                             currency, dicts['gross'], currency,
+                                             dicts['deductions'],
+                                             currency, dicts['net'])
 
     @api.depends('salary_structure_id_erpify')
     def _compute_last_batch_history_erpify(self):
@@ -40,10 +55,11 @@ class PayslipBatch(models.Model):
                 gross += sum(payslip.line_ids.filtered(lambda r: r.code == 'GROSS').mapped('amount'))
                 net += sum(payslip.line_ids.filtered(lambda r: r.code == 'NET').mapped('amount'))
 
-        return {'gross': gross,
-                'deductions': deductions,
-                'net': net,
-                }
+        return {
+            'gross': gross,
+            'deductions': deductions,
+            'net': net,
+            }
 
 
 class HrPayslipEmployees(models.TransientModel):

@@ -19,4 +19,17 @@
             </xpath>
         </field>
     </record>
+
+    <record id="inherit_leaves_allocation_form_view_erpify" model="ir.ui.view">
+        <field name="name">leaves.form.erpify</field>
+        <field name="model">hr.leave.allocation</field>
+        <field name="inherit_id" ref="hr_holidays.hr_leave_allocation_view_form_manager"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='allocation_type']" position="after">
+                <label for="allocation_period_start"/>
+                <field name="allocation_period_start" nolabel="1" required="1"/>
+                <field name="allocation_period_end" nolabel="1" required="1"/>
+            </xpath>
+        </field>
+    </record>
 </odoo>
