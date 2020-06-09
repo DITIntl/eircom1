@@ -20,7 +20,7 @@ class MailThread(models.AbstractModel):
         _logger.info('Finding a match for '+email_to_localpart)
         if matches:
             _logger.info('Match Found.')
-            msg = self.env['email.interfaces.erpify'].message_new(message_dict)
+            msg = self.env['mail.thread'].message_new(message_dict)
             new_records = matches.get_and_store_decoded_data(msg.attachment_ids)
             matches.message_post(subject=message.subject, body='File received and processed. ' + str(new_records) + ' new records are created.', attachments=message.attachment_ids)
         else:
