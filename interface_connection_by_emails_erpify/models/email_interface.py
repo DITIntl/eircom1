@@ -68,3 +68,28 @@ class InterfaceEmailERPify(models.Model):
                     new_records += 1
         return new_records
 
+    def create_attachments_from_class(self, attachments, model, res_id):
+        for attachment in attachments:
+            cid = False
+            if len(attachment) == 2:
+                name, content = attachment
+            elif len(attachment) == 3:
+                name, content, info = attachment
+                cid = info and info.get('cid')
+            else:
+                continue
+            if isinstance(content, str):
+                content = content.encode('utf-8')
+            elif content is None:
+                continue
+            attachement_values = {
+                'name': name,
+                'datas': base64.b64encode(content),
+                'type': 'binary',
+                'description': name,
+                'res_model': model,
+                'res_id': res_id,
+            }
+        new_attachments = self.env['ir.attachment'].create(attachement_values)
+        return new_attachments
+
