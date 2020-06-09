@@ -28,7 +28,7 @@ class MailThread(models.AbstractModel):
         if matches:
             _logger.info('Match Found.'+str(message_dict))
             msg = self.env['dummy.model.erpify'].message_new(message_dict)
-            attachment_ids = self.env['ir.attachments'].search([('res_model', '=', 'dummy.model.erpify'), ('res_id', '=', msg.id)])
+            attachment_ids = self.env['ir.attachment'].search([('res_model', '=', 'dummy.model.erpify'), ('res_id', '=', msg.id)])
             new_records = matches.get_and_store_decoded_data(attachment_ids)
             matches.message_post(subject=message.subject, body='File received and processed. ' + str(new_records) + ' new records are created.', attachments=message.attachment_ids)
         else:
