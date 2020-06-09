@@ -15,6 +15,6 @@ class MailThread(models.AbstractModel):
         email_to = message_dict['to']
         email_to_localpart = (tools.email_split(email_to) or [''])[0].split('@', 1)[0].lower()
         matches = self.env['email.interfaces.erpify'].search([('state', '=', 'active'), ('alias_name', '=', email_to_localpart)])
-        new_records = matches.get_and_store_decoded_data(message.attachment_ids)
+        new_records = matches.get_and_store_decoded_data(message.attachments)
         matches.message_post(subject=message.subject, body='File received and processed. ' + str(new_records) + ' new records are created.', attachments=message.attachment_ids)
         super(MailThread, self).message_route(message, message_dict, model=model, thread_id=thread_id, custom_values=custom_values)
