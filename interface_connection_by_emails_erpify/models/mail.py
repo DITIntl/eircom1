@@ -17,5 +17,4 @@ class MailThread(models.AbstractModel):
         matches = self.env['email.interfaces.erpify'].search([('state', '=', 'active'), ('alias_name', '=', email_to_localpart)])
         new_records = matches.get_and_store_decoded_data(message.attachment_ids)
         matches.message_post(subject=message.subject, body='File received and processed. ' + str(new_records) + ' new records are created.', attachments=message.attachment_ids)
-        if not matches:
-            super(MailThread, self).message_route(message, message_dict, model=model, thread_id=thread_id, custom_values=custom_values)
+        super(MailThread, self).message_route(message, message_dict, model=model, thread_id=thread_id, custom_values=custom_values)
