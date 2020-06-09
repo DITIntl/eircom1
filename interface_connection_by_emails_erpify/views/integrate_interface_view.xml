@@ -25,7 +25,7 @@
                         <group name="group_alias">
                             <label for="alias_name" string="Email Alias"/>
                             <div name="alias_def">
-                                <div class="oe_edit_only oe_inline" name="edit_alias" style="display: inline;">
+                                <div name="edit_alias" style="display: inline;">
                                     <field name="alias_name" required="1" class="oe_inline"/>@<field name="alias_domain" class="oe_inline" readonly="1"/>
                                 </div>
                             </div>
