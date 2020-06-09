@@ -11,6 +11,7 @@ _logger = logging.getLogger(__name__)
 
 class Dummy(models.Model):
     _name = 'dummy.model.erpify'
+    _inherit = ['mail.thread']
 
     name = fields.Char()
 
