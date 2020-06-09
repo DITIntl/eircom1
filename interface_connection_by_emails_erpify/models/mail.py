@@ -9,6 +9,12 @@ import dateutil
 _logger = logging.getLogger(__name__)
 
 
+class Dummy(models.Model):
+    _name = 'dummy.model.erpify'
+
+    name = fields.Char()
+
+
 class MailThread(models.AbstractModel):
     _inherit = 'mail.thread'
 
@@ -20,7 +26,7 @@ class MailThread(models.AbstractModel):
         _logger.info('Finding a match for '+email_to_localpart)
         if matches:
             _logger.info('Match Found.')
-            msg = self.env['mail.thread'].message_new(message_dict)
+            msg = self.env['dummy.model.erpify'].message_new(message_dict)
             new_records = matches.get_and_store_decoded_data(msg.attachment_ids)
             matches.message_post(subject=message.subject, body='File received and processed. ' + str(new_records) + ' new records are created.', attachments=message.attachment_ids)
         else:
