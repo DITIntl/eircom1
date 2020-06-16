@@ -4,13 +4,19 @@ from odoo.tools import float_compare, float_is_zero
 from odoo.exceptions import ValidationError
 
 
+class Company(models.Model):
+    _inherit = 'res.company'
+
+    lock_transaction_erpify = fields.Boolean('Lock Transactions while Payroll is In-Progress?')
+
+
 class Leaves(models.Model):
     _inherit = 'hr.leave'
 
     def write(self, vals):
         res = super(Leaves, self).write(vals)
         pending = self.employee_id.slip_ids.filtered(lambda r: r.state in ['draft', 'verify'])
-        if pending:
+        if pending and self.env.user.company_id.lock_transaction_erpify:
             raise ValidationError("You cannot make changes to the record because a payroll is in progress for this employee.")
         return res
 
@@ -20,7 +26,7 @@ class TimesheetSubmission(models.Model):
 
     def approve_reject(self):
         pending = self.employee_id.slip_ids.filtered(lambda r: r.state in ['draft', 'verify'])
-        if pending:
+        if pending and self.env.user.company_id.lock_transaction_erpify:
             raise ValidationError(
                 "You cannot make changes to the record because a payroll is in progress for this employee.")
         return super(TimesheetSubmission, self).approve_reject()

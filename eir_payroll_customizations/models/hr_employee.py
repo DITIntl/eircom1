@@ -10,7 +10,7 @@ class Contract(models.Model):
     def write(self, vals):
         res = super(Contract, self).write(vals)
         pending = self.employee_id.slip_ids.filtered(lambda r: r.state in ['draft', 'verify'])
-        if pending:
+        if pending and self.env.user.company_id.lock_transaction_erpify:
             raise ValidationError("You cannot make changes to the record because a payroll is in progress for this employee.")
         return res
 
